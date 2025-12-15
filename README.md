@@ -7,7 +7,7 @@ A macOS menu bar app that displays the remaining balance from xAI's prepaid cred
 - Displays current prepaid credit balance or postpaid invoice amount in the menu bar
 - Automatically refreshes every 30 minutes
 - Manual refresh option
-- Secure API key storage in UserDefaults
+- Secure API key storage in macOS Keychain
 
 ## Setup
 
