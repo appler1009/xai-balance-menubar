@@ -1,4 +1,5 @@
 import Cocoa
+import Security
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -6,9 +7,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var apiClient: XAIAPIClient?
     var refreshTimer: Timer?
     
+    func saveAPIKey(_ key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: "xai_api_key",
+            kSecValueData as String: key.data(using: .utf8)!,
+            kSecAttrService as String: "xai-balance-menu"
+        ]
+        SecItemDelete(query as CFDictionary) // Delete existing
+        SecItemAdd(query as CFDictionary, nil)
+    }
+    
+    func getAPIKey() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: "xai_api_key",
+            kSecAttrService as String: "xai-balance-menu",
+            kSecReturnData as String: true
+        ]
+        var result: AnyObject?
+        SecItemCopyMatching(query as CFDictionary, &result)
+        if let data = result as? Data {
+            return String(data: data, encoding: .utf8)
+        }
+        return nil
+    }
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Load API key from UserDefaults
-        if let apiKey = UserDefaults.standard.string(forKey: "xai_api_key") {
+        // Load API key from Keychain
+        if let apiKey = getAPIKey() {
             apiClient = XAIAPIClient(apiKey: apiKey)
         }
         
@@ -47,7 +74,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         if alert.runModal() == .alertFirstButtonReturn {
             let key = input.stringValue
-            UserDefaults.standard.set(key, forKey: "xai_api_key")
+            saveAPIKey(key)
             apiClient = XAIAPIClient(apiKey: key)
             refreshBalance()
             startRefreshTimer()
