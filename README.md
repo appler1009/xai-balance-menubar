@@ -1,13 +1,13 @@
 # xAI Balance Menu
 
-A macOS menu bar app that displays the remaining balance from xAI's prepaid credit or postpaid invoice.
+A macOS menu bar app that displays the remaining prepaid credit balance and postpaid invoice amount from xAI.
 
 ## Features
 
-- Displays current prepaid credit balance or postpaid invoice amount in the menu bar
+- Displays current prepaid credit balance and postpaid invoice amount in the menu bar
 - Automatically refreshes every 30 minutes
 - Manual refresh option
-- Secure API key storage in macOS Keychain
+- Secure API key and team ID storage in macOS Keychain
 
 ## Setup
 
@@ -19,14 +19,13 @@ A macOS menu bar app that displays the remaining balance from xAI's prepaid cred
 
 1. Launch the app
 2. Right-click the menu bar icon and select "Set API Key"
-3. Enter your xAI API key
-4. The balance will be displayed in the menu bar
+3. Enter your xAI API key and Team ID
+4. The balances will be displayed in the menu bar
 
 ## API
 
-Uses xAI Management API endpoints:
-- `/v1/management/prepaid-balance` for prepaid credit balance
-- `/v1/management/postpaid-invoice` for postpaid invoice preview
+Uses xAI Management API endpoint:
+- `/v1/billing/teams/{team_id}/postpaid/invoice/preview` for both prepaid credit balance and postpaid invoice amount
 
 ## Building Releases
 
