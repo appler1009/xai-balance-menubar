@@ -12,8 +12,8 @@ A macOS menu bar app that displays the remaining balance from xAI's prepaid cred
 ## Setup
 
 1. Clone the repository
-2. Build with Swift Package Manager: `swift build`
-3. Run the app: `swift run`
+2. Open `xAI-Balance-Menu.xcodeproj` in Xcode
+3. Build and run the project
 
 ## Usage
 
