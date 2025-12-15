@@ -34,14 +34,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        print("App launched")
         // Load API key from Keychain
         if let apiKey = getAPIKey() {
             apiClient = XAIAPIClient(apiKey: apiKey)
+            print("API key loaded")
+        } else {
+            print("No API key found")
         }
-        
+
         // Create status item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        print("Status item created: \(statusItem != nil)")
+        print("Status item button: \(statusItem?.button != nil)")
         statusItem?.button?.title = "Balance: No API Key"
+        print("Title set")
         
         // Create menu
         let menu = NSMenu()
