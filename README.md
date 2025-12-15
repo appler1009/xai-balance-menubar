@@ -5,9 +5,11 @@ A macOS menu bar app that displays the remaining prepaid credit balance and post
 ## Features
 
 - Displays current prepaid credit balance and postpaid invoice amount in the menu bar
+- Custom xAI logo as the menubar icon
 - Automatically refreshes every 30 minutes
 - Manual refresh option
 - Secure API key and team ID storage in macOS Keychain
+- Option to launch automatically at login
 
 ## Setup
 
@@ -29,4 +31,16 @@ Uses xAI Management API endpoint:
 
 ## Building Releases
 
-GitHub Actions automatically builds and releases the app on macOS.
+GitHub Actions automatically:
+- Builds the app on macOS for every push to `main` and pull requests
+- Uses `release-please` to generate release notes and manage versioning
+- On release creation, builds the final app, creates a DMG installer, and uploads it as a release asset
+
+## Contributing
+
+1. Create a feature branch from `main`
+2. Make changes and commit with conventional commit messages (e.g., `feat: add new feature`)
+3. Open a pull request to `main`
+4. GitHub Actions will run builds and tests
+5. Merge the PR, and `release-please` will create a release PR with notes
+6. Merge the release PR to publish the new version
