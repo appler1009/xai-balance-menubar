@@ -129,7 +129,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.xai.balance-menu";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.genoworks.macos.xai-balance-menu";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -146,7 +146,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.xai.balance-menu";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.genoworks.macos.xai-balance-menu";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
