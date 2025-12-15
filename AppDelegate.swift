@@ -1,11 +1,12 @@
 import Cocoa
 import Security
+import ServiceManagement
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var apiClient: XAIAPIClient?
     var refreshTimer: Timer?
-
+    var launchAtLoginItem: NSMenuItem?
 
     override init() {
         super.init()
@@ -84,6 +85,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Refresh", action: #selector(refreshBalance), keyEquivalent: "r"))
         menu.addItem(NSMenuItem(title: "Set API Key", action: #selector(setAPIKey), keyEquivalent: ""))
+
+        launchAtLoginItem = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        launchAtLoginItem?.state = isLaunchAtLoginEnabled() ? .on : .off
+        menu.addItem(launchAtLoginItem!)
+
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
@@ -178,7 +184,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
-    
+
+    @objc func toggleLaunchAtLogin() {
+        let enabled = !isLaunchAtLoginEnabled()
+        setLaunchAtLoginEnabled(enabled)
+        launchAtLoginItem?.state = enabled ? .on : .off
+    }
+
+    func isLaunchAtLoginEnabled() -> Bool {
+        return UserDefaults.standard.bool(forKey: "launchAtLogin")
+    }
+
+    func setLaunchAtLoginEnabled(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: "launchAtLogin")
+        let bundleIdentifier = Bundle.main.bundleIdentifier!
+        print("Bundle ID: \(bundleIdentifier), Setting launch at login: \(enabled)")
+        if SMLoginItemSetEnabled(bundleIdentifier as CFString, enabled) {
+            print("Successfully set launch at login")
+        } else {
+            print("Failed to set launch at login")
+        }
+    }
+
     @objc func quitApp() {
         refreshTimer?.invalidate()
         NSApplication.shared.terminate(nil)
