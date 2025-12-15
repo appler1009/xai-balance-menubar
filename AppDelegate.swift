@@ -1,5 +1,6 @@
-import AppKit
+import Cocoa
 
+@NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var apiClient: XAIAPIClient?
@@ -30,6 +31,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    func startRefreshTimer() {
+        refreshTimer?.invalidate()
+        refreshTimer = Timer.scheduledTimer(timeInterval: 1800, target: self, selector: #selector(refreshBalance), userInfo: nil, repeats: true) // 30 minutes
+    }
+    
     @objc func setAPIKey() {
         let alert = NSAlert()
         alert.messageText = "Enter xAI API Key"
@@ -46,11 +52,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             refreshBalance()
             startRefreshTimer()
         }
-    }
-    
-    func startRefreshTimer() {
-        refreshTimer?.invalidate()
-        refreshTimer = Timer.scheduledTimer(timeInterval: 1800, target: self, selector: #selector(refreshBalance), userInfo: nil, repeats: true) // 30 minutes
     }
     
     @objc func refreshBalance() {
@@ -89,8 +90,3 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.terminate(nil)
     }
 }
-
-let app = NSApplication.shared
-let delegate = AppDelegate()
-app.delegate = delegate
-app.run()

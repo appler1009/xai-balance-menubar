@@ -17,13 +17,10 @@ jobs:
       uses: swift-actions/setup-swift@v2
 
     - name: Build
-      run: swift build -c release
+      run: xcodebuild -project xAI-Balance-Menu.xcodeproj -scheme xAI-Balance-Menu -configuration Release
 
     - name: Package app
-      run: |
-        mkdir -p XAI-Balance-Menu.app/Contents/MacOS
-        cp .build/release/xAI-Balance-Menu XAI-Balance-Menu.app/Contents/MacOS/
-        echo '<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>CFBundleExecutable</key><string>xAI-Balance-Menu</string><key>CFBundleIdentifier</key><string>com.xai.balance-menu</string><key>CFBundleName</key><string>XAI Balance Menu</string><key>CFBundleVersion</key><string>1.0</string><key>LSUIElement</key><true></dict></plist>' > XAI-Balance-Menu.app/Contents/Info.plist
+      run: cp -r build/Release/xAI-Balance-Menu.app .
 
     - name: Create zip
       run: zip -r XAI-Balance-Menu.zip XAI-Balance-Menu.app
