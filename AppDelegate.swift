@@ -1,54 +1,84 @@
 import Cocoa
 import Security
 
-@NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var apiClient: XAIAPIClient?
     var refreshTimer: Timer?
-    
-    func saveAPIKey(_ key: String) {
+
+
+    override init() {
+        super.init()
+    }
+
+    func saveCredentials(apiKey: String, teamId: String) {
+        let credentials = ["apiKey": apiKey, "teamId": teamId]
+        guard let data = try? JSONEncoder().encode(credentials) else { return }
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: "xai_api_key",
-            kSecValueData as String: key.data(using: .utf8)!,
+            kSecAttrAccount as String: "xai_credentials",
+            kSecValueData as String: data,
             kSecAttrService as String: "xai-balance-menu"
         ]
-        SecItemDelete(query as CFDictionary) // Delete existing
+        SecItemDelete(query as CFDictionary)
         SecItemAdd(query as CFDictionary, nil)
     }
-    
-    func getAPIKey() -> String? {
+
+    func getCredentials() -> (apiKey: String, teamId: String)? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: "xai_api_key",
+            kSecAttrAccount as String: "xai_credentials",
             kSecAttrService as String: "xai-balance-menu",
             kSecReturnData as String: true
         ]
         var result: AnyObject?
         SecItemCopyMatching(query as CFDictionary, &result)
-        if let data = result as? Data {
-            return String(data: data, encoding: .utf8)
+        if let data = result as? Data, let dict = try? JSONDecoder().decode([String: String].self, from: data) {
+            if let apiKey = dict["apiKey"], let teamId = dict["teamId"] {
+                return (apiKey, teamId)
+            }
         }
         return nil
     }
-    
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        print("App launched")
-        // Load API key from Keychain
-        if let apiKey = getAPIKey() {
-            apiClient = XAIAPIClient(apiKey: apiKey)
-            print("API key loaded")
+
+    func updateIcon() {
+        let maxSize: CGFloat = 16 // Max dimension for menubar icon
+        if let image = NSImage(named: "XAI_Logo") {
+            let originalSize = image.size
+            let aspectRatio = originalSize.width / originalSize.height
+            var newSize: NSSize
+            if aspectRatio > 1 {
+                // Wider than tall
+                newSize = NSSize(width: maxSize, height: maxSize / aspectRatio)
+            } else {
+                // Taller than wide
+                newSize = NSSize(width: maxSize * aspectRatio, height: maxSize)
+            }
+            image.size = newSize
+            image.isTemplate = true // Render as template for proper menubar coloring
+            statusItem?.button?.image = image
         } else {
-            print("No API key found")
+            // Fallback to SF Symbol, which are square
+            let targetSize = NSSize(width: maxSize, height: maxSize)
+            if let symbolImage = NSImage(systemSymbolName: apiClient != nil ? "x.circle.fill" : "x.circle", accessibilityDescription: "Balance") {
+                symbolImage.size = targetSize
+                symbolImage.isTemplate = true // Ensure it renders correctly
+                statusItem?.button?.image = symbolImage
+            }
+        }
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
+        // Load credentials from Keychain
+        if let (apiKey, teamId) = getCredentials() {
+            apiClient = XAIAPIClient(apiKey: apiKey, teamId: teamId)
         }
 
         // Create status item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        print("Status item created: \(statusItem != nil)")
-        print("Status item button: \(statusItem?.button != nil)")
-        statusItem?.button?.title = "Balance: No API Key"
-        print("Title set")
+        updateIcon()
+        statusItem?.button?.title = ""
         
         // Create menu
         let menu = NSMenu()
@@ -71,49 +101,79 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc func setAPIKey() {
+        NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
-        alert.messageText = "Enter xAI API Key"
+        alert.messageText = "Enter xAI API Key and Team ID"
         alert.addButton(withTitle: "OK")
         alert.addButton(withTitle: "Cancel")
-        
-        let input = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
-        alert.accessoryView = input
-        
+
+        // Create a custom view with two text fields
+        let customView = NSView(frame: NSRect(x: 0, y: 0, width: 300, height: 80))
+
+        let apiKeyLabel = NSTextField(labelWithString: "API Key:")
+        apiKeyLabel.frame = NSRect(x: 0, y: 55, width: 60, height: 20)
+        customView.addSubview(apiKeyLabel)
+
+        let apiKeyField = NSTextField(frame: NSRect(x: 70, y: 50, width: 220, height: 24))
+        customView.addSubview(apiKeyField)
+
+        let teamIdLabel = NSTextField(labelWithString: "Team ID:")
+        teamIdLabel.frame = NSRect(x: 0, y: 25, width: 60, height: 20)
+        customView.addSubview(teamIdLabel)
+
+        let teamIdField = NSTextField(frame: NSRect(x: 70, y: 20, width: 220, height: 24))
+        customView.addSubview(teamIdField)
+
+        alert.accessoryView = customView
+
         if alert.runModal() == .alertFirstButtonReturn {
-            let key = input.stringValue
-            saveAPIKey(key)
-            apiClient = XAIAPIClient(apiKey: key)
+            let key = apiKeyField.stringValue
+            let teamId = teamIdField.stringValue
+            saveCredentials(apiKey: key, teamId: teamId)
+            apiClient = XAIAPIClient(apiKey: key, teamId: teamId)
+            updateIcon()
             refreshBalance()
             startRefreshTimer()
         }
     }
+
+
     
     @objc func refreshBalance() {
         guard let client = apiClient else {
-            statusItem?.button?.title = "Balance: No API Key"
+            statusItem?.button?.title = ""
             return
         }
-        
-        statusItem?.button?.title = "Balance: Loading..."
-        
-        client.fetchPrepaidBalance { [weak self] result in
+
+
+
+        client.fetchBillingInfo { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let balance):
-                    self?.statusItem?.button?.title = String(format: "Balance: $%.2f", balance.balance)
-                case .failure:
-                    // Try postpaid if prepaid fails
-                    client.fetchPostpaidInvoice { [weak self] result2 in
-                        DispatchQueue.main.async {
-                            switch result2 {
-                            case .success(let invoice):
-                                self?.statusItem?.button?.title = String(format: "Invoice: $%.2f", invoice.amount)
-                            case .failure(let error):
-                                self?.statusItem?.button?.title = "Balance: Error"
-                                print("API Error: \(error)")
-                            }
-                        }
+                case .success(let info):
+                    let core = info.coreInvoice
+                    var preValue: Double? = nil
+                    var invValue: Double? = nil
+                    if let preCred = Double(core.prepaidCredits.val), let used = Double(core.prepaidCreditsUsed.val) {
+                        preValue = abs(preCred - used) / 100.0
                     }
+                    if let limit = Double(info.effectiveSpendingLimit), let used = Double(core.amountAfterVat) {
+                        invValue = (limit - used) / 100.0
+                    }
+                    var parts: [String] = []
+                    if let pre = preValue, pre != 0 {
+                        parts.append(String(format: "$%.2f", pre))
+                    }
+                    if let inv = invValue, inv != 0 {
+                        parts.append(String(format: "$%.2f", inv))
+                    }
+                    if parts.isEmpty {
+                        self?.statusItem?.button?.title = "$0.00"
+                    } else {
+                        self?.statusItem?.button?.title = parts.joined(separator: " ")
+                    }
+                case .failure:
+                    self?.statusItem?.button?.title = "Error"
                 }
             }
         }

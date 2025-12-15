@@ -1,31 +1,40 @@
 import Foundation
 
-struct PrepaidBalance: Codable {
-    let balance: Double
-    let changes: [BalanceChange]
+struct Amount: Codable {
+    let val: String
 }
 
-struct BalanceChange: Codable {
-    let amount: Double
-    let timestamp: String
-    let description: String
+struct BillingInfo: Codable {
+    let coreInvoice: CoreInvoice
+    let effectiveSpendingLimit: String
+    let billingCycle: BillingCycle
 }
 
-struct PostpaidInvoice: Codable {
-    let amount: Double
-    let dueDate: String
+struct CoreInvoice: Codable {
+    let amountAfterVat: String
+    let prepaidCredits: Amount
+    let prepaidCreditsUsed: Amount
+    // Add other fields if needed
+}
+
+struct BillingCycle: Codable {
+    let year: Int
+    let month: Int
 }
 
 class XAIAPIClient {
-    private let baseURL = "https://api.x.ai/v1/management"
+    private let baseURL = "https://management-api.x.ai"
     private let apiKey: String
-    
-    init(apiKey: String) {
+    private let teamId: String
+
+    init(apiKey: String, teamId: String) {
         self.apiKey = apiKey
+        self.teamId = teamId
     }
     
-    func fetchPrepaidBalance(completion: @escaping (Result<PrepaidBalance, Error>) -> Void) {
-        let url = URL(string: "\(baseURL)/prepaid-balance")!
+
+    func fetchBillingInfo(completion: @escaping (Result<BillingInfo, Error>) -> Void) {
+        let url = URL(string: "\(baseURL)/v1/billing/teams/\(teamId)/postpaid/invoice/preview")!
         var request = URLRequest(url: url)
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
@@ -34,36 +43,19 @@ class XAIAPIClient {
                 completion(.failure(error))
                 return
             }
-            guard let data = data else {
-                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data"])))
-                return
-            }
-            do {
-                let balance = try JSONDecoder().decode(PrepaidBalance.self, from: data)
-                completion(.success(balance))
-            } catch {
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-    
-    func fetchPostpaidInvoice(completion: @escaping (Result<PostpaidInvoice, Error>) -> Void) {
-        let url = URL(string: "\(baseURL)/postpaid-invoice")!
-        var request = URLRequest(url: url)
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                let errorMessage = "HTTP Error: \(httpResponse.statusCode)"
+                completion(.failure(NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])))
                 return
             }
             guard let data = data else {
                 completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data"])))
                 return
             }
+
             do {
-                let invoice = try JSONDecoder().decode(PostpaidInvoice.self, from: data)
-                completion(.success(invoice))
+                let info = try JSONDecoder().decode(BillingInfo.self, from: data)
+                completion(.success(info))
             } catch {
                 completion(.failure(error))
             }

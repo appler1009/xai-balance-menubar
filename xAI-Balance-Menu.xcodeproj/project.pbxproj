@@ -7,44 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A3A4DA92EEFE9B100E6B1BB /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3A4DA82EEFE9B100E6B1BB /* main.swift */; };
 		OBJ_10 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* AppDelegate.swift */; };
 		OBJ_12 /* XAIAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* XAIAPIClient.swift */; };
 		OBJ_14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* Assets.xcassets */; };
-
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		OBJ_13 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		OBJ_6 /* xAI-Balance-Menu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = xAI-Balance-Menu.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		OBJ_8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3A3A4DA82EEFE9B100E6B1BB /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		OBJ_11 /* XAIAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XAIAPIClient.swift; sourceTree = "<group>"; };
+		OBJ_13 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		OBJ_6 /* xAI-Balance-Menu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "xAI-Balance-Menu.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFrameworksBuildPhase section */
-		OBJ_21 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
 /* Begin PBXGroup section */
-		OBJ_5 /* xAI-Balance-Menu */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
-				OBJ_7 /* xAI-Balance-Menu */,
-				OBJ_6 /* xAI-Balance-Menu.app */,
-			);
-			sourceTree = "<group>";
-		};
-		OBJ_7 /* xAI-Balance-Menu */ = {
-			isa = PBXGroup;
-			children = (
+				3A3A4DA82EEFE9B100E6B1BB /* main.swift */,
 				OBJ_8 /* AppDelegate.swift */,
 				OBJ_11 /* XAIAPIClient.swift */,
 				OBJ_13 /* Assets.xcassets */,
+				OBJ_6 /* xAI-Balance-Menu.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -56,15 +41,14 @@
 			buildConfigurationList = OBJ_22 /* Build configuration list for PBXNativeTarget "xAI-Balance-Menu" */;
 			buildPhases = (
 				OBJ_19 /* Sources */,
-				OBJ_20 /* Frameworks */,
 				OBJ_21 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = xAI-Balance-Menu;
-			productName = xAI-Balance-Menu;
+			name = "xAI-Balance-Menu";
+			productName = "xAI-Balance-Menu";
 			productReference = OBJ_6 /* xAI-Balance-Menu.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -74,8 +58,9 @@
 		OBJ_1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1400;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 2610;
 			};
 			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "xAI-Balance-Menu" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -85,7 +70,7 @@
 				en,
 			);
 			mainGroup = OBJ_5;
-			productRefGroup = OBJ_5 /* xAI-Balance-Menu */;
+			productRefGroup = OBJ_5;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -112,6 +97,7 @@
 			files = (
 				OBJ_10 /* AppDelegate.swift in Sources */,
 				OBJ_12 /* XAIAPIClient.swift in Sources */,
+				3A3A4DA92EEFE9B100E6B1BB /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -185,11 +171,13 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATED_BRANCHES = YES;
 				CLANG_WARN__DUPLICATED_METHOD_MATCH = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CLANG_WARN__EXIT_TIME_DESTRUCTORS = YES;
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -209,6 +197,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -244,11 +233,13 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATED_BRANCHES = YES;
 				CLANG_WARN__DUPLICATED_METHOD_MATCH = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CLANG_WARN__EXIT_TIME_DESTRUCTORS = YES;
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -261,6 +252,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
