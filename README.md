@@ -2,6 +2,10 @@
 
 A macOS menu bar app that displays the remaining prepaid credit balance and postpaid invoice amount from xAI.
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Features
 
 - Displays current prepaid credit balance and postpaid invoice amount in the menu bar
