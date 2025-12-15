@@ -41,6 +41,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Create status item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        if #available(macOS 11.0, *) {
+            statusItem?.button?.image = NSImage(systemSymbolName: "dollarsign.circle", accessibilityDescription: "Balance")
+        }
         statusItem?.button?.title = "Balance: No API Key"
         
         // Create menu
