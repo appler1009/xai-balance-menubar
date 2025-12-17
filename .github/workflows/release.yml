@@ -1,0 +1,116 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Generate Release Notes
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            # For workflow_dispatch, create and push the tag first
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
+            git push origin "v${{ github.event.inputs.version }}"
+          fi
+          node generate-release-notes.js
+          
+      - name: Read Release Notes
+        id: notes
+        run: |
+          if [ -f "RELEASE_NOTES.md" ]; then
+            NOTES=$(cat RELEASE_NOTES.md)
+            # Escape special characters for GitHub Actions
+            NOTES="${NOTES//'%'/'%25'}"
+            NOTES="${NOTES//$'\n'/'%0A'}"
+            NOTES="${NOTES//$'\r'/'%0D'}"
+            echo "notes<<EOF" >> $GITHUB_OUTPUT
+            echo "$NOTES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "notes=Release notes generation failed. Check logs for details." >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: ${{ steps.notes.outputs.notes }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    needs: release
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Set up Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+        
+      - name: Build for Release
+        run: |
+          xcodebuild -project xAI-Balance-Menu.xcodeproj -scheme "xAI-Balance-Menu" -configuration Release build
+          
+      - name: Create DMG
+        run: |
+          # Install create-dmg if needed
+          brew install create-dmg
+          
+          # Create DMG from Release build
+          create-dmg \
+            --volname "xAI Balance Menu" \
+            --volicon "Assets.xcassets/XAI_Logo.imageset/XAI_Logo.svg" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "xAI-Balance-Menu.app" 200 190 \
+            --hide-extension "xAI-Balance-Menu.app" \
+            --app-drop-link 600 185 \
+            "xAI-Balance-Menu.dmg" \
+            "build/Release/xAI-Balance-Menu.app"
+            
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./xAI-Balance-Menu.dmg
+          asset_name: xAI-Balance-Menu.dmg
+          asset_content_type: application/octet-stream
