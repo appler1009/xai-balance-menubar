@@ -67,7 +67,11 @@ jobs:
 
       - name: Build for Release
         run: |
-          xcodebuild -project xAI-Balance-Menu.xcodeproj -scheme "xAI-Balance-Menu" -configuration Release build -derivedDataPath DerivedData
+          xcodebuild -project xAI-Balance-Menu.xcodeproj -scheme "xAI-Balance-Menu" -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build -derivedDataPath DerivedData
           
       - name: Find and copy app
         run: |
