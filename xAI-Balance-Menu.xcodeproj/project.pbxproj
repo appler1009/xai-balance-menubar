@@ -3,25 +3,76 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		3A3A4DA92EEFE9B100E6B1BB /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3A4DA82EEFE9B100E6B1BB /* main.swift */; };
+		3A3A4DBA2EF29F0400E6B1BB /* Testing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A3A4DB92EF29F0400E6B1BB /* Testing.framework */; };
+		3A3A4DBB2EF29F0400E6B1BB /* Testing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A3A4DB92EF29F0400E6B1BB /* Testing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		OBJ_10 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* AppDelegate.swift */; };
 		OBJ_12 /* XAIAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* XAIAPIClient.swift */; };
 		OBJ_14 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3A3A4DB32EF29CB800E6B1BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_9;
+			remoteInfo = "xAI-Balance-Menu";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3A3A4DBC2EF29F0400E6B1BB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3A3A4DBB2EF29F0400E6B1BB /* Testing.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3A3A4DA82EEFE9B100E6B1BB /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		3A3A4DAF2EF29CB800E6B1BB /* xAI-Balance-MenuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "xAI-Balance-MenuTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A3A4DB92EF29F0400E6B1BB /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
 		OBJ_11 /* XAIAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XAIAPIClient.swift; sourceTree = "<group>"; };
 		OBJ_13 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		OBJ_6 /* xAI-Balance-Menu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "xAI-Balance-Menu.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		3A3A4DB02EF29CB800E6B1BB /* xAI-Balance-MenuTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "xAI-Balance-MenuTests"; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3A3A4DAC2EF29CB800E6B1BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A3A4DBA2EF29F0400E6B1BB /* Testing.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
+		3A3A4DB82EF29F0400E6B1BB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3A3A4DB92EF29F0400E6B1BB /* Testing.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
@@ -30,12 +81,39 @@
 				OBJ_11 /* XAIAPIClient.swift */,
 				OBJ_13 /* Assets.xcassets */,
 				OBJ_6 /* xAI-Balance-Menu.app */,
+				3A3A4DAF2EF29CB800E6B1BB /* xAI-Balance-MenuTests.xctest */,
+				3A3A4DB02EF29CB800E6B1BB /* xAI-Balance-MenuTests */,
+				3A3A4DB82EF29F0400E6B1BB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3A3A4DAE2EF29CB800E6B1BB /* xAI-Balance-MenuTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3A3A4DB52EF29CB800E6B1BB /* Build configuration list for PBXNativeTarget "xAI-Balance-MenuTests" */;
+			buildPhases = (
+				3A3A4DAB2EF29CB800E6B1BB /* Sources */,
+				3A3A4DAC2EF29CB800E6B1BB /* Frameworks */,
+				3A3A4DAD2EF29CB800E6B1BB /* Resources */,
+				3A3A4DBC2EF29F0400E6B1BB /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3A3A4DB42EF29CB800E6B1BB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3A3A4DB02EF29CB800E6B1BB /* xAI-Balance-MenuTests */,
+			);
+			name = "xAI-Balance-MenuTests";
+			packageProductDependencies = (
+			);
+			productName = "xAI-Balance-MenuTests";
+			productReference = 3A3A4DAF2EF29CB800E6B1BB /* xAI-Balance-MenuTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		OBJ_9 /* xAI-Balance-Menu */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_22 /* Build configuration list for PBXNativeTarget "xAI-Balance-Menu" */;
@@ -59,8 +137,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1400;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					3A3A4DAE2EF29CB800E6B1BB = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = OBJ_9;
+					};
+				};
 			};
 			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "xAI-Balance-Menu" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -75,11 +159,19 @@
 			projectRoot = "";
 			targets = (
 				OBJ_9 /* xAI-Balance-Menu */,
+				3A3A4DAE2EF29CB800E6B1BB /* xAI-Balance-MenuTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3A3A4DAD2EF29CB800E6B1BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		OBJ_21 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -91,6 +183,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3A3A4DAB2EF29CB800E6B1BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		OBJ_19 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -103,7 +202,74 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		3A3A4DB42EF29CB800E6B1BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_9 /* xAI-Balance-Menu */;
+			targetProxy = 3A3A4DB32EF29CB800E6B1BB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		3A3A4DB62EF29CB800E6B1BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = TN2RQ5P647;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.genoworks.macos.xai-balance-menu.Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/xAI-Balance-Menu.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/xAI-Balance-Menu";
+			};
+			name = Debug;
+		};
+		3A3A4DB72EF29CB800E6B1BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = TN2RQ5P647;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.genoworks.macos.xai-balance-menu.Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/xAI-Balance-Menu.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/xAI-Balance-Menu";
+			};
+			name = Release;
+		};
 		OBJ_23 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -289,6 +455,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3A3A4DB52EF29CB800E6B1BB /* Build configuration list for PBXNativeTarget "xAI-Balance-MenuTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A3A4DB62EF29CB800E6B1BB /* Debug */,
+				3A3A4DB72EF29CB800E6B1BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		OBJ_2 /* Build configuration list for PBXProject "xAI-Balance-Menu" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
