@@ -1,101 +1,113 @@
-name: Release
+name: Build and Release macOS App
 
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version number (e.g., 1.0.0)'
-        required: true
-        default: '1.0.0'
-
-permissions:
-  contents: write
+    tags: ['v*']
 
 jobs:
-  release:
+  check-branch-tag:
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+      - name: Check branch and tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_COMMIT=$(git rev-parse "${{ github.ref_name }}")
+            MAIN_COMMIT=$(git rev-parse origin/main)
+            if git merge-base --is-ancestor "$TAG_COMMIT" "$MAIN_COMMIT"; then
+              echo "Push to main branch with v* tag detected. Proceeding."
+            else
+              echo "Error: Tag ${{ github.ref_name }} is not on main branch."
+              exit 1
+            fi
+          else
+            echo "Error: Workflow only runs for v* tags (e.g., v1.0.0) on main branch."
+            exit 1
+          fi
+
+  release-notes:
+    needs: check-branch-tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
-      - name: Generate Release Notes
+
+      - name: Generate release notes
+        run: node generate-release-notes.js
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
-        run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            # For workflow_dispatch, create and push the tag first
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
-            git push origin "v${{ github.event.inputs.version }}"
-          fi
-          node generate-release-notes.js
-          
-      - name: Read Release Notes
-        id: notes
-        run: |
-          if [ -f "RELEASE_NOTES.md" ]; then
-            NOTES=$(cat RELEASE_NOTES.md)
-            # Escape special characters for GitHub Actions
-            NOTES="${NOTES//'%'/'%25'}"
-            NOTES="${NOTES//$'\n'/'%0A'}"
-            NOTES="${NOTES//$'\r'/'%0D'}"
-            echo "notes<<EOF" >> $GITHUB_OUTPUT
-            echo "$NOTES" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "notes=Release notes generation failed. Check logs for details." >> $GITHUB_OUTPUT
-          fi
-          
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: ${{ steps.notes.outputs.notes }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-macos:
-    needs: release
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: RELEASE_NOTES.md
+
+  build:
+    needs: check-branch-tag
     runs-on: macos-latest
-    
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Set up Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-        
+
       - name: Build for Release
         run: |
-          xcodebuild -project xAI-Balance-Menu.xcodeproj -scheme "xAI-Balance-Menu" -configuration Release build
+          xcodebuild -project xAI-Balance-Menu.xcodeproj -scheme "xAI-Balance-Menu" -configuration Release build -derivedDataPath DerivedData
           
+      - name: Find and copy app
+        run: |
+          # Find the built app in DerivedData
+          APP_PATH=$(find DerivedData -name "xAI-Balance-Menu.app" -type d | head -1)
+          echo "Found app at: $APP_PATH"
+          
+          # Create release directory and copy app
+          mkdir -p release
+          cp -R "$APP_PATH" "release/xAI-Balance-Menu.app"
+
+      - name: Install the Developer ID Certificate
+        env:
+          MACOS_DEVELOPER_ID_CERTIFICATE: ${{ secrets.MACOS_DEVELOPER_ID_CERTIFICATE }}
+          MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+        run: |
+          security create-keychain -p mysecret build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security unlock-keychain -p mysecret build.keychain
+          echo -n "$MACOS_DEVELOPER_ID_CERTIFICATE" | base64 --decode > developer-id.p12
+          security import developer-id.p12 -k build.keychain -P "$MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k mysecret build.keychain
+          security list-keychain -d user -s build.keychain
+
+      - name: Code Sign the App
+        env:
+          DEVELOPER_ID: ${{ secrets.DEVELOPER_ID }}
+        run: |
+          codesign --force --deep --options runtime --sign "$DEVELOPER_ID" "release/xAI-Balance-Menu.app"
+          codesign --verify --verbose "release/xAI-Balance-Menu.app"
+
       - name: Create DMG
         run: |
-          # Install create-dmg if needed
+          # Install create-dmg
           brew install create-dmg
           
-          # Create DMG from Release build
+          # Create DMG
+          cd release
           create-dmg \
             --volname "xAI Balance Menu" \
-            --volicon "Assets.xcassets/XAI_Logo.imageset/XAI_Logo.svg" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
@@ -103,14 +115,93 @@ jobs:
             --hide-extension "xAI-Balance-Menu.app" \
             --app-drop-link 600 185 \
             "xAI-Balance-Menu.dmg" \
-            "build/Release/xAI-Balance-Menu.app"
+            "xAI-Balance-Menu.app"
             
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
+      - name: Code Sign the DMG
+        env:
+          DEVELOPER_ID: ${{ secrets.DEVELOPER_ID }}
+        run: |
+          codesign --force --sign "$DEVELOPER_ID" "release/xAI-Balance-Menu.dmg"
+          codesign --verify --verbose "release/xAI-Balance-Menu.dmg"
+
+      - name: Notarize the macOS App
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          XCRUN_NOTARYTOOL_SKIP_SUBMISSION: false
+        run: |
+          dmg_path="release/xAI-Balance-Menu.dmg"
+          if [ ! -f "$dmg_path" ]; then
+            echo "Error: DMG file not found at $dmg_path"
+            exit 1
+          fi
+          echo "Notarizing $dmg_path"
+          xcrun notarytool submit "$dmg_path" --apple-id "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+          xcrun stapler staple "$dmg_path"
+
+      - name: Clean Up
+        if: always()
+        run: |
+          security delete-keychain build.keychain
+          rm developer-id.p12
+
+      - name: Debug release directory
+        run: ls -la release/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-build
+          path: release/
+
+  release:
+    needs: [release-notes, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download release notes artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: .
+
+      - name: Download release builds
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release-build
+          path: ./release-builds-download
+
+      - name: List downloaded artifacts (for debugging)
+        run: find ./release-builds-download -maxdepth 3
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./xAI-Balance-Menu.dmg
-          asset_name: xAI-Balance-Menu.dmg
-          asset_content_type: application/octet-stream
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ steps.version.outputs.PACKAGE_VERSION }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        if: success()
+        with:
+          files: |
+            ./release-builds-download/*.dmg
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
