@@ -80,7 +80,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         updateIcon()
         statusItem?.button?.title = ""
-        
+
         // Create menu
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Refresh", action: #selector(refreshBalance), keyEquivalent: "r"))
@@ -95,19 +95,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
-        
+
         // Initial refresh if API key exists
         if apiClient != nil {
             refreshBalance()
             startRefreshTimer()
         }
     }
-    
+
     func startRefreshTimer() {
         refreshTimer?.invalidate()
         refreshTimer = Timer.scheduledTimer(timeInterval: 1800, target: self, selector: #selector(refreshBalance), userInfo: nil, repeats: true) // 30 minutes
     }
-    
+
     @objc func setAPIKey() {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
@@ -145,15 +145,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-
-    
     @objc func refreshBalance() {
         guard let client = apiClient else {
             statusItem?.button?.title = ""
             return
         }
-
-
 
         client.fetchBillingInfo { [weak self] result in
             DispatchQueue.main.async {
@@ -212,21 +208,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = "xAI Balance Menu"
-        
+
         // Debug: Check what files are available in the bundle
         if let resourcePath = Bundle.main.resourcePath {
             let files = try? FileManager.default.contentsOfDirectory(atPath: resourcePath)
             print("Bundle resources: \(files ?? [])")
         }
-        
+
         // For now, use bundle version (we can manually update this)
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
         print("Using bundle version: \(version) (\(build))")
-        
+
         // Get current year for copyright
         let currentYear = Calendar.current.component(.year, from: Date())
-        
+
         // Try to get copyright owner from bundle or use team name
         var copyrightOwner = "xAI"
         if let bundleCopyright = Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String {
@@ -239,15 +235,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
-        
+
         alert.informativeText = "Version \(version) (Build \(build))\n\nCopyright © \(currentYear) \(copyrightOwner). All rights reserved."
         alert.addButton(withTitle: "OK")
         alert.alertStyle = .informational
         alert.runModal()
     }
-    
-    
-    
+
     @objc func quitApp() {
         refreshTimer?.invalidate()
         NSApplication.shared.terminate(nil)

@@ -31,13 +31,11 @@ class XAIAPIClient {
         self.apiKey = apiKey
         self.teamId = teamId
     }
-    
-
     func fetchBillingInfo(completion: @escaping (Result<BillingInfo, Error>) -> Void) {
         let url = URL(string: "\(baseURL)/v1/billing/teams/\(teamId)/postpaid/invoice/preview")!
         var request = URLRequest(url: url)
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
+
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))

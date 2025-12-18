@@ -45,7 +45,7 @@ jobs:
           node-version: '18'
 
       - name: Generate release notes
-        run: node generate-release-notes.js
+        run: node scripts/generate-release-notes.js
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
 
