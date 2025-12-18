@@ -91,6 +91,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(launchAtLoginItem!)
 
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "About...", action: #selector(showAbout), keyEquivalent: ""))
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
         
@@ -206,6 +208,46 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    @objc func showAbout() {
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "xAI Balance Menu"
+        
+        // Debug: Check what files are available in the bundle
+        if let resourcePath = Bundle.main.resourcePath {
+            let files = try? FileManager.default.contentsOfDirectory(atPath: resourcePath)
+            print("Bundle resources: \(files ?? [])")
+        }
+        
+        // For now, use bundle version (we can manually update this)
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        print("Using bundle version: \(version) (\(build))")
+        
+        // Get current year for copyright
+        let currentYear = Calendar.current.component(.year, from: Date())
+        
+        // Try to get copyright owner from bundle or use team name
+        var copyrightOwner = "xAI"
+        if let bundleCopyright = Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String {
+            // Extract owner from copyright string (e.g., "Copyright © 2025 Team Name. All rights reserved.")
+            let pattern = "Copyright © \\d+ (.+?)\\."
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+               let match = regex.firstMatch(in: bundleCopyright, options: [], range: NSRange(bundleCopyright.startIndex..., in: bundleCopyright)) {
+                if let range = Range(match.range(at: 1), in: bundleCopyright) {
+                    copyrightOwner = String(bundleCopyright[range])
+                }
+            }
+        }
+        
+        alert.informativeText = "Version \(version) (Build \(build))\n\nCopyright © \(currentYear) \(copyrightOwner). All rights reserved."
+        alert.addButton(withTitle: "OK")
+        alert.alertStyle = .informational
+        alert.runModal()
+    }
+    
+    
+    
     @objc func quitApp() {
         refreshTimer?.invalidate()
         NSApplication.shared.terminate(nil)

@@ -33,6 +33,34 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Uses xAI Management API endpoint:
 - `/v1/billing/teams/{team_id}/postpaid/invoice/preview` for both prepaid credit balance and postpaid invoice amount
 
+## Version Management
+
+The app uses git tags for version management. The version is embedded in the app's About dialog.
+
+### Updating Version Locally
+
+After creating a new git tag, update the version in Info.plist:
+
+```bash
+# After creating a new tag
+git tag v0.0.3
+./scripts/update-version.sh
+git add Info.plist
+git commit -m "Update version to 0.0.3"
+```
+
+The `update-version.sh` script:
+- Extracts the latest git tag (e.g., `v0.0.2` → `0.0.2`)
+- Updates `CFBundleShortVersionString` in Info.plist with the version
+- Updates `CFBundleVersion` with the commit count for unique build numbers
+
+### Automatic Version Updates
+
+GitHub Actions automatically updates the version when you push new tags:
+- Push a tag: `git push origin v0.0.3`
+- GitHub Actions updates Info.plist and commits the changes
+- The About dialog will then display the correct version
+
 ## Building Releases
 
 GitHub Actions automatically:
