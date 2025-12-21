@@ -98,21 +98,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let menu = NSMenu()
     menu.addItem(
       NSMenuItem(title: "Refresh", action: #selector(refreshBalance), keyEquivalent: "r"))
-    menu.addItem(NSMenuItem(title: "Set API Key", action: #selector(setAPIKey), keyEquivalent: ""))
 
     launchAtLoginItem = NSMenuItem(
       title: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
     launchAtLoginItem?.state = isLaunchAtLoginEnabled() ? .on : .off
-    menu.addItem(launchAtLoginItem!)
 
     menu.addItem(NSMenuItem.separator())
     let invoiceTempItem = NSMenuItem(title: "Invoice: --", action: nil, keyEquivalent: "")
     invoiceMenuItem = invoiceTempItem
     menu.addItem(invoiceTempItem)
-    menu.addItem(NSMenuItem.separator())
     let prepaidTempItem = NSMenuItem(title: "Prepaid: --", action: nil, keyEquivalent: "")
     prepaidMenuItem = prepaidTempItem
     menu.addItem(prepaidTempItem)
+
+    menu.addItem(NSMenuItem.separator())
+    menu.addItem(NSMenuItem(title: "Set API Key", action: #selector(setAPIKey), keyEquivalent: ""))
+    menu.addItem(launchAtLoginItem!)
 
     menu.addItem(NSMenuItem.separator())
     menu.addItem(NSMenuItem(title: "About...", action: #selector(showAbout), keyEquivalent: ""))
@@ -180,8 +181,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     client.fetchBillingInfo { [weak self] (result: Result<BillingInfo, Error>) in
-      DispatchQueue.main.async { [weak self] in
-        switch result {
+      switch result {
         case .success(let info):
           let core = info.coreInvoice
           self?.effectiveSpendingLimit = info.effectiveSpendingLimit
@@ -196,7 +196,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let used = Double(core.prepaidCreditsUsed.val)
           {
             preValue = abs(preCred - used) / 100.0
-          }
+    }
           if let limit = Double(info.effectiveSpendingLimit), let used = Double(core.amountAfterVat)
           {
             invValue = (limit - used) / 100.0
@@ -232,7 +232,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
       }
     }
-  }
 
   @objc func toggleLaunchAtLogin() {
     let enabled = !isLaunchAtLoginEnabled()
