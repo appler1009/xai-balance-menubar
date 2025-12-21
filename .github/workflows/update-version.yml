@@ -32,10 +32,10 @@ jobs:
           
           echo "Updated version to $VERSION (Build $BUILD_NUMBER)"
 
-      - name: Commit and push updated Info.plist
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add Info.plist
-          git diff --staged --quiet || git commit -m "Update version to $(git describe --tags --abbrev=0)"
-          git push
+       - name: Commit and push updated Info.plist
+         run: |
+           git config --local user.email "action@github.com"
+           git config --local user.name "GitHub Action"
+           git add Info.plist
+           git diff --staged --quiet || git commit -m "Update version to $(git describe --tags --abbrev=0)"
+           git push origin HEAD:main
