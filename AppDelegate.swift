@@ -270,21 +270,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
     print("Using bundle version: \(version) (\(build))")
 
-    // Get year from latest git commit for copyright
+    // Get year from Info.plist CommitYear
     let currentYear: Int
-    do {
-      let process = Process()
-      process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
-      process.arguments = ["log", "-1", "--format=%ci"]
-      let pipe = Pipe()
-      process.standardOutput = pipe
-      try process.run()
-      process.waitUntilExit()
-      let data = pipe.fileHandleForReading.readDataToEndOfFile()
-      let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-      let yearString = output.split(separator: "-").first ?? ""
-      currentYear = Int(yearString) ?? Calendar.current.component(.year, from: Date())
-    } catch {
+    if let yearString = Bundle.main.infoDictionary?["CommitYear"] as? String,
+       let year = Int(yearString) {
+      currentYear = year
+    } else {
       currentYear = Calendar.current.component(.year, from: Date())
     }
 
