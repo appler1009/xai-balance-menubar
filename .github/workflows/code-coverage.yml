@@ -1,4 +1,4 @@
-name: CI
+name: Code Coverage
 
 on:
   push:
@@ -66,11 +66,3 @@ jobs:
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Build for Release
-        run: |
-          xcodebuild -project xAI-Balance-Menu.xcodeproj -scheme "xAI-Balance-Menu" -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            build 2>&1 | tail -20

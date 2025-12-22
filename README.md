@@ -15,6 +15,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Secure API key and team ID storage in macOS Keychain
 - Option to launch automatically at login
 
+## System Requirements
+
+- **macOS**: 14.0 or later
+- **Xcode**: 15.2 or later (for development)
+- **Architecture**: Universal (Intel + Apple Silicon)
+
 ## Setup
 
 1. Clone the repository
@@ -32,6 +38,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Uses xAI Management API endpoint:
 - `/v1/billing/teams/{team_id}/postpaid/invoice/preview` for both prepaid credit balance and postpaid invoice amount
+
+## Code Coverage
+
+The project includes code coverage tracking using Codecov.
+
+### Setting up Codecov
+
+1. Fork/connect your repository on [Codecov](https://codecov.io)
+2. Add a `CODECOV_TOKEN` secret to your GitHub repository settings (get the token from Codecov)
+3. The CI workflow will automatically upload coverage reports
 
 ## Version Management
 
@@ -67,59 +83,30 @@ GitHub Actions automatically updates the version when you push new tags:
 
 GitHub Actions automatically:
 - Builds the app on macOS for every push to `main` and pull requests
-- Uses `release-please` to generate release notes and manage versioning
+- Generates and uploads code coverage reports
 - On release creation, builds the final app, creates a DMG installer, and uploads it as a release asset
+
+### Release Process
+
+1. **Create a release**: Push a tag following semver (e.g., `v1.0.0`)
+2. **CI runs**: Build, test, and create release artifacts
+3. **DMG created**: Automatically signed and notarized
+4. **Release published**: DMG uploaded to GitHub Releases
+
+### Required GitHub Secrets for Release
+
+To enable full release functionality, add these secrets:
+- `MACOS_DEVELOPER_ID_CERTIFICATE`: Base64-encoded Developer ID certificate
+- `MACOS_DEVELOPER_ID_CERTIFICATE_PASSWORD`: Certificate password
+- `DEVELOPER_ID`: Developer ID Application signing identity
+- `APPLE_ID`: Apple ID for notarization
+- `APPLE_ID_PASSWORD`: App-specific password for notarization
+- `APPLE_TEAM_ID`: Apple Team ID for notarization
 
 ## Contributing
 
 1. Create a feature branch from `main`
 2. Make changes and commit with conventional commit messages (e.g., `feat: add new feature`)
 3. Open a pull request to `main`
-4. GitHub Actions will run builds and tests
-5. Merge the PR, and `release-please` will create a release PR with notes
-6. Merge the release PR to publish the new version
-
-## Code Coverage
-
-The project includes code coverage tracking using Codecov.
-
-### Setting up Codecov
-
-1. Fork/connect your repository on [Codecov](https://codecov.io)
-2. Add a `CODECOV_TOKEN` secret to your GitHub repository settings (get the token from Codecov)
-3. The CI workflow will automatically upload coverage reports
-
-### Local Development
-
-Generate coverage reports locally:
-
-```bash
-chmod +x scripts/generate-coverage.sh
-./scripts/generate-coverage.sh
-```
-
-This will:
-- Run all tests with coverage enabled
-- Generate a coverage report in `TestResults.xcresult`
-- Display the coverage summary
-
-To view detailed HTML coverage report:
-```bash
-xcrun xccov view --report --html TestResults.xcresult
-```
-
-### CI Integration
-
-- Code coverage is automatically generated and uploaded on every push to `main` and pull requests
-- The CI workflow runs tests with `-enableCodeCoverage YES`
-- Coverage data is converted and uploaded to Codecov
-
-### GitHub Secrets Setup
-
-To enable Codecov integration:
-
-1. Go to your GitHub repository settings → Secrets and variables → Actions
-2. Add a new repository secret:
-   - Name: `CODECOV_TOKEN`
-   - Value: Your Codecov token (get this from your Codecov repository settings)
-3. The CI workflow will automatically use this token to upload coverage reports
+4. GitHub Actions will run builds, tests, and code coverage
+5. Merge the PR once CI passes
