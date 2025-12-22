@@ -26,7 +26,55 @@ jobs:
           else
             echo "Error: Workflow only runs for v* tags (e.g., v1.0.0) on main branch."
             exit 1
-          fi
+           fi
+
+  update-version:
+    needs: check-branch-tag
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for git describe
+
+      - name: Update Info.plist with git version
+        run: |
+          # Get the git version tag (current tag)
+          GIT_VERSION=$(git describe --tags --abbrev=0)
+          
+          # Remove 'v' prefix if present
+          VERSION=${GIT_VERSION#v}
+          
+          # Update the version in Info.plist
+          echo "Updating Info.plist version to: $VERSION"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" Info.plist
+          
+          # Update build number to commit count for uniqueness
+          BUILD_NUMBER=$(git rev-list --count HEAD)
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" Info.plist
+          
+          # Update commit year
+          COMMIT_YEAR=$(git log -1 --format=%ci | cut -d- -f1)
+          /usr/libexec/PlistBuddy -c "Set :CommitYear $COMMIT_YEAR" Info.plist
+          
+          # Get GitHub user ID from remote URL
+          REMOTE_URL=$(git remote get-url origin)
+          USER_ID=$(echo $REMOTE_URL | sed 's|https://github.com/||' | cut -d/ -f1)
+          
+          # Update copyright
+          /usr/libexec/PlistBuddy -c "Set :NSHumanReadableCopyright Copyright © $COMMIT_YEAR $USER_ID. All rights reserved." Info.plist
+          
+          echo "Updated version to $VERSION (Build $BUILD_NUMBER) with commit year $COMMIT_YEAR"
+
+      - name: Commit and push updated Info.plist
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Info.plist
+          git diff --staged --quiet || git commit -m "Update version to $(git describe --tags --abbrev=0)"
+          git push origin HEAD:main
 
   release-notes:
     needs: check-branch-tag
@@ -56,11 +104,13 @@ jobs:
           path: RELEASE_NOTES.md
 
   test-and-build:
-    needs: check-branch-tag
+    needs: [check-branch-tag, update-version]
     runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Set up Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
