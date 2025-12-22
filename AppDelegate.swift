@@ -270,8 +270,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
     print("Using bundle version: \(version) (\(build))")
 
-    // Get current year for copyright
-    let currentYear = Calendar.current.component(.year, from: Date())
+    // Get year from latest git commit for copyright
+    let currentYear: Int
+    do {
+      let process = Process()
+      process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+      process.arguments = ["log", "-1", "--format=%ci"]
+      let pipe = Pipe()
+      process.standardOutput = pipe
+      try process.run()
+      process.waitUntilExit()
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+      let yearString = output.split(separator: "-").first ?? ""
+      currentYear = Int(yearString) ?? Calendar.current.component(.year, from: Date())
+    } catch {
+      currentYear = Calendar.current.component(.year, from: Date())
+    }
 
     // Try to get copyright owner from bundle or use team name
     var copyrightOwner = "xAI"
@@ -290,7 +305,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     alert.informativeText =
-      "Version \(version) (Build \(build))\n\nCopyright © \(currentYear) \(copyrightOwner). All rights reserved."
+      "Version \(version) (Build \(build))\n\nCopyright © \(currentYear) \(copyrightOwner).\nAll rights reserved."
     alert.addButton(withTitle: "OK")
     alert.alertStyle = .informational
     alert.runModal()
