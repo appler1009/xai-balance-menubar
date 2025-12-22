@@ -31,4 +31,18 @@ echo "Updating Info.plist version to: $VERSION"
 BUILD_NUMBER=$(git rev-list --count HEAD)
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "$INFO_PLIST"
 
-echo "Updated version to $VERSION (Build $BUILD_NUMBER)"
+# Update commit year
+COMMIT_YEAR=$(git log -1 --format=%ci | cut -d- -f1)
+/usr/libexec/PlistBuddy -c "Set :CommitYear $COMMIT_YEAR" "$INFO_PLIST"
+
+# Get GitHub user ID from remote URL (for consistency with GitHub Actions)
+REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if [[ -n "$REMOTE_URL" && "$REMOTE_URL" == *"github.com"* ]]; then
+    USER_ID=$(echo "$REMOTE_URL" | sed 's|https://github.com/||' | cut -d/ -f1)
+    /usr/libexec/PlistBuddy -c "Set :NSHumanReadableCopyright Copyright © $COMMIT_YEAR $USER_ID. All rights reserved." "$INFO_PLIST"
+else
+    # Fallback for non-GitHub remotes
+    /usr/libexec/PlistBuddy -c "Set :NSHumanReadableCopyright Copyright © $COMMIT_YEAR. All rights reserved." "$INFO_PLIST"
+fi
+
+echo "Updated version to $VERSION (Build $BUILD_NUMBER) with commit year $COMMIT_YEAR"

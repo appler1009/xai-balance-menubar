@@ -41,32 +41,8 @@ jobs:
 
       - name: Update Info.plist with git version
         run: |
-          # Get the git version tag (current tag)
-          GIT_VERSION=$(git describe --tags --abbrev=0)
-          
-          # Remove 'v' prefix if present
-          VERSION=${GIT_VERSION#v}
-          
-          # Update the version in Info.plist
-          echo "Updating Info.plist version to: $VERSION"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" Info.plist
-          
-          # Update build number to commit count for uniqueness
-          BUILD_NUMBER=$(git rev-list --count HEAD)
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" Info.plist
-          
-          # Update commit year
-          COMMIT_YEAR=$(git log -1 --format=%ci | cut -d- -f1)
-          /usr/libexec/PlistBuddy -c "Set :CommitYear $COMMIT_YEAR" Info.plist
-          
-          # Get GitHub user ID from remote URL
-          REMOTE_URL=$(git remote get-url origin)
-          USER_ID=$(echo $REMOTE_URL | sed 's|https://github.com/||' | cut -d/ -f1)
-          
-          # Update copyright
-          /usr/libexec/PlistBuddy -c "Set :NSHumanReadableCopyright Copyright © $COMMIT_YEAR $USER_ID. All rights reserved." Info.plist
-          
-          echo "Updated version to $VERSION (Build $BUILD_NUMBER) with commit year $COMMIT_YEAR"
+          chmod +x scripts/update-version.sh
+          ./scripts/update-version.sh
 
       - name: Commit and push updated Info.plist
         run: |
