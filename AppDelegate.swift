@@ -181,7 +181,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     client.fetchBillingInfo { [weak self] (result: Result<BillingInfo, Error>) in
-      switch result {
+      DispatchQueue.main.async {
+        switch result {
         case .success(let info):
           let core = info.coreInvoice
           self?.effectiveSpendingLimit = info.effectiveSpendingLimit
@@ -196,7 +197,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let used = Double(core.prepaidCreditsUsed.val)
           {
             preValue = abs(preCred - used) / 100.0
-    }
+          }
           if let limit = Double(info.effectiveSpendingLimit), let used = Double(core.amountAfterVat)
           {
             invValue = (limit - used) / 100.0
@@ -232,6 +233,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
       }
     }
+  }
 
   @objc func toggleLaunchAtLogin() {
     let enabled = !isLaunchAtLoginEnabled()
@@ -240,17 +242,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   func isLaunchAtLoginEnabled() -> Bool {
-    return UserDefaults.standard.bool(forKey: "launchAtLogin")
+    let bundleIdentifier = Bundle.main.bundleIdentifier!
+    let service = SMAppService.loginItem(identifier: bundleIdentifier)
+    return service.status == .enabled
   }
 
   func setLaunchAtLoginEnabled(_ enabled: Bool) {
-    UserDefaults.standard.set(enabled, forKey: "launchAtLogin")
     let bundleIdentifier = Bundle.main.bundleIdentifier!
     print("Bundle ID: \(bundleIdentifier), Setting launch at login: \(enabled)")
-    if SMLoginItemSetEnabled(bundleIdentifier as CFString, enabled) {
+    do {
+      let service = SMAppService.loginItem(identifier: bundleIdentifier)
+      if enabled {
+        try service.register()
+      } else {
+        try service.unregister()
+      }
       print("Successfully set launch at login")
-    } else {
-      print("Failed to set launch at login")
+    } catch {
+      print("Failed to set launch at login: \(error)")
     }
   }
 
@@ -273,7 +282,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // Get year from Info.plist CommitYear
     let currentYear: Int
     if let yearString = Bundle.main.infoDictionary?["CommitYear"] as? String,
-       let year = Int(yearString) {
+      let year = Int(yearString)
+    {
       currentYear = year
     } else {
       currentYear = Calendar.current.component(.year, from: Date())
