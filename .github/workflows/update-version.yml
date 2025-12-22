@@ -28,11 +28,15 @@ jobs:
           echo "Updating Info.plist version to: $VERSION"
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" Info.plist
           
-          # Update build number to commit count for uniqueness
-          BUILD_NUMBER=$(git rev-list --count HEAD)
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" Info.plist
-          
-           echo "Updated version to $VERSION (Build $BUILD_NUMBER)"
+           # Update build number to commit count for uniqueness
+           BUILD_NUMBER=$(git rev-list --count HEAD)
+           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" Info.plist
+
+           # Update copyright year
+           COMMIT_YEAR=$(git log -1 --format=%ci | cut -d- -f1)
+           /usr/libexec/PlistBuddy -c "Set :NSHumanReadableCopyright Copyright © $COMMIT_YEAR xAI. All rights reserved." Info.plist
+
+           echo "Updated version to $VERSION (Build $BUILD_NUMBER) with copyright year $COMMIT_YEAR"
 
       - name: Commit and push updated Info.plist
         run: |
