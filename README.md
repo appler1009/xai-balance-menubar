@@ -53,6 +53,8 @@ The `update-version.sh` script:
 - Extracts the latest git tag (e.g., `v0.0.2` → `0.0.2`)
 - Updates `CFBundleShortVersionString` in Info.plist with the version
 - Updates `CFBundleVersion` with the commit count for unique build numbers
+- Updates `CommitYear` with the year of the latest commit
+- Updates `NSHumanReadableCopyright` with dynamic copyright information
 
 ### Automatic Version Updates
 
