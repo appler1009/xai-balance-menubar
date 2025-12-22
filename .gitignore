@@ -21,3 +21,8 @@ DerivedData/
 
 # Build directory
 build/
+
+# Test Results and Coverage
+TestResults.xcresult/
+coverage.json
+*.xcresult

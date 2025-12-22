@@ -78,3 +78,48 @@ GitHub Actions automatically:
 4. GitHub Actions will run builds and tests
 5. Merge the PR, and `release-please` will create a release PR with notes
 6. Merge the release PR to publish the new version
+
+## Code Coverage
+
+The project includes code coverage tracking using Codecov.
+
+### Setting up Codecov
+
+1. Fork/connect your repository on [Codecov](https://codecov.io)
+2. Add a `CODECOV_TOKEN` secret to your GitHub repository settings (get the token from Codecov)
+3. The CI workflow will automatically upload coverage reports
+
+### Local Development
+
+Generate coverage reports locally:
+
+```bash
+chmod +x scripts/generate-coverage.sh
+./scripts/generate-coverage.sh
+```
+
+This will:
+- Run all tests with coverage enabled
+- Generate a coverage report in `TestResults.xcresult`
+- Display the coverage summary
+
+To view detailed HTML coverage report:
+```bash
+xcrun xccov view --report --html TestResults.xcresult
+```
+
+### CI Integration
+
+- Code coverage is automatically generated and uploaded on every push to `main` and pull requests
+- The CI workflow runs tests with `-enableCodeCoverage YES`
+- Coverage data is converted and uploaded to Codecov
+
+### GitHub Secrets Setup
+
+To enable Codecov integration:
+
+1. Go to your GitHub repository settings → Secrets and variables → Actions
+2. Add a new repository secret:
+   - Name: `CODECOV_TOKEN`
+   - Value: Your Codecov token (get this from your Codecov repository settings)
+3. The CI workflow will automatically use this token to upload coverage reports
